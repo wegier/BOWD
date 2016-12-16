@@ -5,6 +5,9 @@ import chromosome;
 
 #Populacja zapisana za pomoca chromosomow
 chroms = [];
+#zmienna do zapisywania populacji po selekcji
+selected = [];
+#ocena przystosowania poszczegolnych osobnikow
 addaptation = [];
 pop_size = 0;
 p = 0;
@@ -93,7 +96,7 @@ def addapt_scaling(r):
 # tourn_size - liczba osobnikow uczestniczaca w turnieju.
 def selection(sel_size, elit, tourn_size):
 	global chroms;
-	#Tymczasowa zmienna do zapisywania populacji po selekcji
+	global selected;
 	selected = [];
 	#Wyszukaj elit najlepszych osobnikow
 	for i in range(elit):
@@ -137,12 +140,24 @@ def selection(sel_size, elit, tourn_size):
 		del chroms[ind];
 		del addaptation[ind];
 	
+	
 #po selekcji tworzy nowa populacje z osobnikow pozostalych po selekcji,
 #osobnikow powstalych w wyniku krzyzowania i osobnikow powstalych 
 #w wyniku mutacji
 #x - liczba osobnikow powstalych z krzyzowania
 #mut - liczba osobnikow powstalych w wyniku mutacji
 def new_population(x, mut):
-	pass;
+	#osobniki z selekcji 
+	chroms = selected;	
+	mutchr = random.sample(selected, mut);
+	#mutuj i dodawaj osobniki do listy chroms
+	for chr in mutchr:
+		chroms.append(chromosome.mutate(mutchr, p, k));
+	#dobieramy pary do krzyzowania - zakladamy, ze populacja nie jest
+	#monogamiczna - i dodajemy potomka otrzymanego w wyniku krzyzowania
+	#do populacji
+	for i in range(x):
+		parents = random.sample(selected, 2);
+		chroms.append(crossV2(parents[0], parents[1], p, k));
 
 	
