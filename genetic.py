@@ -23,7 +23,7 @@ T = 0;
 #pozostale zmienne - oznaczenia takie same jak stosowane w innych miejscach
 #z dodana litera l
 def run_gen_algorithm(pl, kl, boardl, collectptsl, provideptsl, Tl, pops,
-	num_it, r, sel_size, elit, x, mut):
+	num_it, r, sel_size, elit, x, mut, tourn_size):
 	global p;
 	global k;
 	global pop_size;
@@ -40,13 +40,14 @@ def run_gen_algorithm(pl, kl, boardl, collectptsl, provideptsl, Tl, pops,
 	T = 0;
 	board = [];
 
-    pop_size = pops;
+	pop_size = pops;
 	rand_population();
 	
-	for(i in range(num_it)):
+	for i in range(num_it):
+		random.seed(time.time());
 		addapt_scaling(r);
-		selection(sel_size, elit);
-		new_population(x, mut):
+		selection(sel_size, elit, tourn_size);
+		new_population(x, mut);
 
 #Losuje populacje liczaca 
 def rand_population():
@@ -62,22 +63,23 @@ def rand_population():
 #Po wykonaniu ponizszej funkcji w liscie addaptation zapisane jest przystosowanie
 #osobnika odpowiadajacych danemu indeksowi w liscie 
 
-#zastosowano skalowanie liniowe
+#zastosowano skalowanie liniowe 
 #parametr r to maksymalna wartosc przeskalowanego przystosowania 
 #przy zalozeniu, ze srednie przystosowanie jest rowne 1
 
 def addapt_scaling(r):
-	#policz nieprzeskalowane przystosowanie kazdego z osobnikow
+	#policz nieprzeskalowane przystosowanie kazdego z osobnikow (najmniejsze
+	#bedzie najlepsze)
 	addaptation = [];
-	for(chr in chroms):
+	for chr in chroms:
 		addaptation.append(find_paths(p, k, board, collectpts, providepts, chr, T));
 	#Srednia przystosowania
 	av = float(sum(addaptation)) / float(len(addaptation));
 	#najlepsze przystosowanie
-	best = float(max(addaptation));
+	best = float(min(addaptation));
 	a = (r - 1)/(best - av);
 	b = (best - (r*av))/(best - av);
-	#dokonaj przeskalowania dla kazdego elementu adaptation
+	#dokonaj przeskalowania dla kazdego elementu addaptation
 	addaptation[:] = [(a*x + b) for x in addaptation]; 
 	
 #selekcja osobnikow - chroms - populacja zapisana za pomoca chromosomow
@@ -86,11 +88,55 @@ def addapt_scaling(r):
 #elit - liczba osobnikow o najlepszej ocenie przystosowania
 #ktora na pewno przezyje podczas selekcji (k<=n, gdy
 #nie jest stosowana strategia elitarna k = 0)
-#w tym projekcie zastosowano selekcje turniejowa.
-def selection(sel_size, elit):
+#Na razie zastosowano selekcje turniejowa, moze to zostac w przyszlosci
+#zmienione
+# tourn_size - liczba osobnikow uczestniczaca w turnieju.
+def selection(sel_size, elit, tourn_size):
 	global chroms;
-	pass;
-
+	#Tymczasowa zmienna do zapisywania populacji po selekcji
+	selected = [];
+	#Wyszukaj elit najlepszych osobnikow
+	for i in range(elit):
+		ind = addaptation.index(max(addaptation));
+		selected.append(chroms[ind]);
+		del chroms[ind];
+		del addaptation[ind];
+		#addaptation[ind] = -addaptation[ind]; - przy zastosowaniu ruletki mogloby 
+		#tak byc
+	#osobniki pozostajace do selekcji
+	sel_size = sel_size - elit;
+	#zmien wartosci zmienione wczesniej na ujemne znowu na dodatnie
+	#for(i in range(len(addaptation))): 
+	#	if(addaptation[i] < 0):
+	#		addaptation[i] = -addaptation[i];
+	
+	#wyselekcjonuj osobniki na podstawie turniejow Liczba turniejow
+	#dobrana jest w taki sposob, aby po rozgraniu wszystkich zostala
+	#wystarczajaco duza liczba osobnikow do wypelnienia listy selected
+	num_tourns = int((len(chroms) - sel_size)/(tourn_size - 1));
+	for i in range(num_tourns): 
+		#wybierz osobnikow do turnieju
+		tourn = random.sample(range(len(chroms)), tourn_size);
+		#osobniki do turnieju:
+		competitors = [chroms[j] for j in tourn];
+		#ich ocena przystosowania:
+		comp_addapt = [addaptation[j] for j in tourn];
+		#wybierz najlepszego z osobnikow z turnieju
+		best = comp_addapt.index(max(comp_addapt));
+		#dodaj go do wyselkcjonowanych osobnikow
+		selected.append(competitors[best]);
+		#usun osobniki wystepujace w turnieju z listy
+		chroms = [chr for chr, i in enumerate(chroms) if j not in tourn];
+		addaptation = [chr for chr, i in enumerate(addaptation) if j not in tourn];
+	#z pozostajacych osobnikow wybierz tylu najlepszych, zeby wypelnili
+	#pozostajaca czesc listy selected
+	sel_size = sel_size - num_tourns;
+	for i in range(sel_size):
+		ind = addaptation.index(max(addaptation));
+		selected.append(chroms[ind]);
+		del chroms[ind];
+		del addaptation[ind];
+	
 #po selekcji tworzy nowa populacje z osobnikow pozostalych po selekcji,
 #osobnikow powstalych w wyniku krzyzowania i osobnikow powstalych 
 #w wyniku mutacji
