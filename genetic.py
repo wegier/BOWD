@@ -1,5 +1,7 @@
 import findways;
 import chromosome;
+import time;
+import random;
 
 #plik do algorytmu genetycznego
 
@@ -43,16 +45,19 @@ def run_gen_algorithm(pl, kl, boardl, collectptsl, provideptsl, Tl, pops,
 	T = 0;
 	board = [];
 
-	pop_size = pops;
-	rand_population();
+	#run_gen_algorithm(4, 5, [], [], [], 20, 10,
+	#10, 4, 5, 0, 3, 2, 2)
 	
+	pop_size = pops;
+	random.seed(time.time());
+	rand_population();
 	for i in range(num_it):
-		random.seed(time.time());
 		addapt_scaling(r);
 		selection(sel_size, elit, tourn_size);
 		new_population(x, mut);
+	
 
-#Losuje populacje liczaca 
+#Losuje populacje 
 def rand_population():
 	global chroms;
 	global addaptation;
@@ -60,7 +65,7 @@ def rand_population():
 	addaptation = [];
 	
 	for i in range(pop_size):
-		chroms.append(randChrom(p, k));
+		chroms.append(chromosome.randChrom(p, k));
 
 
 #Po wykonaniu ponizszej funkcji w liscie addaptation zapisane jest przystosowanie
@@ -71,11 +76,13 @@ def rand_population():
 #przy zalozeniu, ze srednie przystosowanie jest rowne 1
 
 def addapt_scaling(r):
+	global addaptation;
 	#policz nieprzeskalowane przystosowanie kazdego z osobnikow (najmniejsze
 	#bedzie najlepsze)
 	addaptation = [];
 	for chr in chroms:
-		addaptation.append(find_paths(p, k, board, collectpts, providepts, chr, T));
+		addaptation.append(random.randrange(10, 40));
+		#addaptation.append(find_paths(p, k, board, collectpts, providepts, chr, T));
 	#Srednia przystosowania
 	av = float(sum(addaptation)) / float(len(addaptation));
 	#najlepsze przystosowanie
@@ -97,7 +104,9 @@ def addapt_scaling(r):
 def selection(sel_size, elit, tourn_size):
 	global chroms;
 	global selected;
+	global addaptation;
 	selected = [];
+	
 	#Wyszukaj elit najlepszych osobnikow
 	for i in range(elit):
 		ind = addaptation.index(max(addaptation));
@@ -111,26 +120,27 @@ def selection(sel_size, elit, tourn_size):
 	#zmien wartosci zmienione wczesniej na ujemne znowu na dodatnie
 	#for(i in range(len(addaptation))): 
 	#	if(addaptation[i] < 0):
-	#		addaptation[i] = -addaptation[i];
+	#		addaptation[i] = -addaptation[i];\
 	
 	#wyselekcjonuj osobniki na podstawie turniejow Liczba turniejow
 	#dobrana jest w taki sposob, aby po rozgraniu wszystkich zostala
 	#wystarczajaco duza liczba osobnikow do wypelnienia listy selected
-	num_tourns = int((len(chroms) - sel_size)/(tourn_size - 1));
+	num_tourns = min(int((len(chroms) - sel_size)/(tourn_size - 1)) , sel_size);
+	
 	for i in range(num_tourns): 
 		#wybierz osobnikow do turnieju
 		tourn = random.sample(range(len(chroms)), tourn_size);
 		#osobniki do turnieju:
 		competitors = [chroms[j] for j in tourn];
-		#ich ocena przystosowania:
+		#ich ocena przyst1osowania:
 		comp_addapt = [addaptation[j] for j in tourn];
 		#wybierz najlepszego z osobnikow z turnieju
 		best = comp_addapt.index(max(comp_addapt));
 		#dodaj go do wyselkcjonowanych osobnikow
 		selected.append(competitors[best]);
 		#usun osobniki wystepujace w turnieju z listy
-		chroms = [chr for chr, i in enumerate(chroms) if j not in tourn];
-		addaptation = [chr for chr, i in enumerate(addaptation) if j not in tourn];
+		chroms = [chr for j, chr in enumerate(chroms) if j not in tourn];
+		addaptation = [a for j, a in enumerate(addaptation) if j not in tourn];
 	#z pozostajacych osobnikow wybierz tylu najlepszych, zeby wypelnili
 	#pozostajaca czesc listy selected
 	sel_size = sel_size - num_tourns;
@@ -147,17 +157,19 @@ def selection(sel_size, elit, tourn_size):
 #x - liczba osobnikow powstalych z krzyzowania
 #mut - liczba osobnikow powstalych w wyniku mutacji
 def new_population(x, mut):
+	global chroms;
+	global selected;
 	#osobniki z selekcji 
 	chroms = selected;	
 	mutchr = random.sample(selected, mut);
 	#mutuj i dodawaj osobniki do listy chroms
 	for chr in mutchr:
-		chroms.append(chromosome.mutate(mutchr, p, k));
+		chroms.append(chromosome.mutate(chr, p, k));
 	#dobieramy pary do krzyzowania - zakladamy, ze populacja nie jest
 	#monogamiczna - i dodajemy potomka otrzymanego w wyniku krzyzowania
 	#do populacji
 	for i in range(x):
 		parents = random.sample(selected, 2);
-		chroms.append(crossV2(parents[0], parents[1], p, k));
+		chroms.append(chromosome.crossV2(parents[0], parents[1], p, k));
 
 	

@@ -9,8 +9,9 @@ def mutate(chrom, p, k):
 	#ponizsze niedopuszczalne
 	if(p == 0 or k == 0):
 		return;
-	#zainicjalizuj generator liczb pseudolosowych
-	random.seed(time.time());
+	#zainicjalizuj generator liczb pseudolosowych - nie rob tego, czesciej
+	#wykonywane niz mozna zaktualizowac - przynajmniej na razie
+	#random.seed(time.time());
 	#wybierz liczbe surowcow, dla ktorej zastapi zmiana platform
 	#maks. k/2, czyli polowa liczby wszystkich surowcow, chyba ze
 	#liczba surowcow to 1
@@ -40,8 +41,9 @@ def cross(chrom1, chrom2, p, k):
 	#ponizsze niedopuszczalne
 	if(p == 0 or k == 0):
 		return;
-	#zainicjalizuj generator liczb pseudolosowych
-	random.seed(time.time());
+	#zainicjalizuj generator liczb pseudolosowych - na razie nie
+	#random.seed(time.time());
+	
 	#wybierz liczbe surowcow, ktorej przyporzadkowanie do platform
 	#zostanie wziete z pierwszego chromosomu.
 	num_chrom1 = random.randrange(1, k+1);
@@ -67,8 +69,9 @@ def crossV2(chrom1, chrom2, p, k):
 	#ponizsze niedopuszczalne
 	if(p == 0 or k == 0):
 		return;
-	#zainicjalizuj generator liczb pseudolosowych
-	random.seed(time.time());
+	#zainicjalizuj generator liczb pseudolosowych - nie, inicjalizowany zewnetrznie
+	#random.seed(time.time());
+	
 	#wybierz liczbe surowcow, ktorej przyporzadkowanie do platform
 	#zostanie wziete z pierwszego chromosomu.
 	num_chrom1 = random.randrange(1, k+1);
@@ -110,7 +113,7 @@ def crossV2(chrom1, chrom2, p, k):
 
 #Losuj chromosom
 def randChrom(p, k):
-	random.seed(time.time());
+	#random.seed(time.time());
 	#utworz macierz wypelniona zerami
 	chrom = [[0 for j in range(k)] for i in range(p)];
 	#Dla kazdego surowca wybierz losowo platforme
