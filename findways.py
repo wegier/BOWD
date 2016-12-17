@@ -164,28 +164,40 @@ def find_way(board, begpt, endpt, Gg, T):
 	CL = [];
 	#lista indeksow ojcow wezlow zamknietych
 	CL_fath = [];
+	#odleglosci wezlow zamknietych od poczatku
+	CL_Gs = [];
 	#lista wezlow otwartych 
 	OL = [];
-	#lista ojcow wezlow otwartych
+	#lista indeksow ojcow wezlow otwartych
 	OL_fath = [];
+	#lista wartosci funkcji heurystycznych dla wezlow otwartych
+	OL_Fs = [];
 	#lista dlugosci sciezek do danych pol w OL
 	OL_Gs = [];
 	
 	#Odleglosc od poczatku
 	G = Gg;
 	
+	#obliczanie funkcji heurystycznej
+	H = abs(endpt[0] - begpt[0]) + abs(endpt[1] - begpt[1]);
+	F = G + H;
+	
 	OL.append(begpt);
 	OL_fath.append(-1);
+	OL_Fs.append(F);
 	OL_Gs.append(G);
 	
 	cur = begpt;
 	curf = -1;
 	
 	while len(OL) > 0 and G < T:
+	
+		#indeks elementu OL o najmniejszej wartosci F 
+		m_index = OL_Fs.index(min(OL_Fs));
 		#indeks elementu OL o najmniejszej wartosci G
-		m_index = OL_Gs.index(min(OL_Gs));
+		#m_index = OL_Gs.index(min(OL_Gs));
 		
-		#element OL o najmniejszej wartosci  G 
+		#element OL o najmniejszej wartosci  F
 		cur = OL[m_index];
 		#ojciec tego elementu
 		curf = OL_fath[m_index];
@@ -196,6 +208,7 @@ def find_way(board, begpt, endpt, Gg, T):
 		#usun aktualny element z listy OL
 		del OL[m_index];
 		del OL_fath[m_index];
+		del OL_Fs[m_index];
 		del OL_Gs[m_index];
 		
 		#umiesc pole i jego rodzica na liscie odpowiednio wezlow zamknietych
@@ -203,12 +216,13 @@ def find_way(board, begpt, endpt, Gg, T):
 		curind = len(CL);
 		CL.append(cur);
 		CL_fath.append(curf);
+		CL_Gs.append(curG);
 		#sprawdz czy to wezel docelowy
 		if(cur == endpt):
 			return go_back(begpt, endpt, curf, CL, CL_fath);
 		#znajdz sasiadow
-		neighs = getNeighbours(cur, curG + 1);
 		G = curG + 1;
+		neighs = getNeighbours(cur, G);
 		#Dla kazdego dostepnego sasiada:
 		for nei in neighs:
 			#jesli dany sasiad znajduje sie na OL i do tego jego 
@@ -223,10 +237,28 @@ def find_way(board, begpt, endpt, Gg, T):
 						break;
 				if(no_add == 1):
 					continue;
-				#W przeciwnym wypadku dodaj ten punkt z nowa wartoscia
-				#G do tablicy OL
+			#to samo z lista wezlow zamknietych
+			if(nei in CL):
+				indices = [i for i, p in enumerate(CL) if p == nei];
+				no_add = 0;
+				for i in indices:
+					if(CL_Gs[i] == G):
+						no_add == 1;
+						break;
+				if(no_add == 1):
+					continue;
+					
+			#W przeciwnym wypadku dodaj ten punkt z nowa wartoscia
+			#G do tablicy OL
+			
+			#oblicz funkcje heurystyczna:
+			#szacowana odleglosc do wezla koncowego
+			H = abs(endpt[0] - nei[0]) + abs(endpt[1] - nei[1]);
+			F = G + H;
+			
 			OL.append(nei);
 			OL_fath.append(curind);
+			OL_Fs.append(F);
 			OL_Gs.append(G);
 			
 			
