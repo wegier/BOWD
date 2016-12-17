@@ -5,6 +5,19 @@ import problemfile;
 
 
 
+
+
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+#PARAMETRY ALGORYTMU GENETYCZNEGO SĄ STATYCZNĄ LISTĄ - KOLEJNOŚĆ TAK JAK NA GUI -
+#KLASY ParamEdit
+# - ParamEdit.parameters[]
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+
+
+
+
 class FieldType:
     normal = 0;
     obstacle = -1;
@@ -13,7 +26,10 @@ class FieldType:
     material = 3;#This is required as we have one bursh for material soruce and dest
     path = 4;
 # - Points associated with material are represended in gridArray by two succesive numbers - loading point is odd, unloading is even 
-# - ex. (1, 2), (3, 4).... 
+# - ex. (1, 2), (3, 4)....
+
+
+
 
 #=========================================================================================
 # MaterialType - associated with every square that is not an obstacle or normal cell     #
@@ -417,7 +433,6 @@ class LoadButton(QtGui.QPushButton):
     def handleClicked(self):
         
         window = self.parentWidget().parentWidget().parentWidget();
-        print(window);
         filePath = QtGui.QFileDialog.getOpenFileName(window, 'Otwórz Plik');
         problemfile.read_problem_file(filePath);
         window.makeGrid(problemfile.n, problemfile.m, problemfile.providepts, problemfile.collectpts,problemfile.forbidden, problemfile.board);
@@ -440,6 +455,54 @@ class MakeGridButton(QtGui.QPushButton):
     def handleClicked(self):
         window = self.parentWidget().parentWidget();
         window.makeGrid(int(window.heightEdit.text()),int(window.widthEdit.text()),  [],[],[],[]);
+
+#==================================================    
+#==================================================
+        
+class StartAlgorithmButton(QtGui.QPushButton):
+    def __init__(self, text, parent):
+        super(StartAlgorithmButton, self).__init__(text, parent);
+        self.clicked.connect(self.handleClicked);
+    def handleClicked(self):
+        print("START");
+        #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        #TU IDZIE WYWOŁANIEI A STARTU GENETYCZNEGO
+        #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+
+
+#==================================================    
+#==================================================
+        
+class ParamEdit(QtGui.QWidget):
+    parameters = [];
+    numberOfInstances = 0; 
+    def __init__(self, text,parent):
+        super(ParamEdit,self).__init__(parent);
+
+        self.id = ParamEdit.numberOfInstances;
+        ParamEdit.numberOfInstances = ParamEdit.numberOfInstances+1;
+        ParamEdit.parameters.append(0);
+        self.label = QtGui.QLabel(text,self);
+        self.lineEdit = QtGui.QLineEdit(self);
+        self.layout = QtGui.QVBoxLayout(self);
+        self.layout.addWidget(self.label);
+        self.layout.addWidget(self.lineEdit);
+        
+        self.lineEdit.textChanged.connect(self.handleChange);
+        
+    def handleChange(self):
+        data = self.lineEdit.text();
+        if len(data) > 0 :
+            ParamEdit.parameters[self.id] = int(self.lineEdit.text());
+        else:
+            ParamEdit.parameters[self.id] = 0;
+        print(ParamEdit.parameters);
+        
+        
         
 #==================================================
                 
@@ -451,31 +514,33 @@ class Window(QtGui.QMainWindow):
 
 
     def __init__(self,n,m, sq = 25, th = 2):
+
         super(Window, self).__init__()
+
         
         self.grid = CheckerBoard(0,0,0,0); #tu musi coś być                
-        #layout
+        #main layout
         self.layout = QtGui.QGridLayout();
         self.layout.addWidget(self.grid, 0,0);
         self.cw = QtGui.QWidget(self);
         self.cw.setLayout(self.layout);
         self.setCentralWidget(self.cw);
 
-        #window rightside
-        self.rLayout = QtGui.QBoxLayout(2,self.cw); # 2 - top to bottom
+        #window central colum 
+        self.cLayout = QtGui.QBoxLayout(2,self.cw); # 2 - top to bottom
         #creating board
         self.makeButton = MakeGridButton("Utwórz Planszę", self.cw);
-        self.rLayout.addWidget(self.makeButton);
+        self.cLayout.addWidget(self.makeButton);
         self.heightEdit = QtGui.QLineEdit(self.cw);
         self.heightEdit.setInputMask("D9");
         self.heightEdit.insert("0");
         self.widthEdit = QtGui.QLineEdit(self.cw);
         self.widthEdit.setInputMask("D9");
         self.widthEdit.insert("0");
-        self.lineEditLayout = QtGui.QHBoxLayout(self.cw);
-        self.lineEditLayout.addWidget(self.heightEdit);
-        self.lineEditLayout.addWidget(self.widthEdit);
-        self.rLayout.addLayout(self.lineEditLayout);
+        self.sizeLayout = QtGui.QHBoxLayout(self.cw);
+        self.sizeLayout.addWidget(self.heightEdit);
+        self.sizeLayout.addWidget(self.widthEdit);
+        self.cLayout.addLayout(self.sizeLayout);
 
         
 
@@ -499,19 +564,19 @@ class Window(QtGui.QMainWindow):
         self.brushesLayout.addWidget(self.materialCell);
         self.brushesFrame.setLayout(self.brushesLayout);
         self.brushesFrame.setTitle("Pędzel");
-        self.rLayout.addWidget(self.brushesFrame);
+        self.cLayout.addWidget(self.brushesFrame);
 
         #Path list
         self.pathList = PathList(self.cw);
-        self.rLayout.addWidget(self.pathList);
+        self.cLayout.addWidget(self.pathList);
         #path List controll buttons
         self.showButton = ShowPathButton("Pokaz", self.cw);
         self.hideButton = HidePathButton("Ukryj", self.cw);
-        self.rLayout.addWidget(self.showButton);
-        self.rLayout.addWidget(self.hideButton);
+        self.cLayout.addWidget(self.showButton);
+        self.cLayout.addWidget(self.hideButton);
 
         #Stretch
-        self.rLayout.addStretch();
+        self.cLayout.addStretch();
 
         #control buttons
         #control buttons frame
@@ -525,16 +590,54 @@ class Window(QtGui.QMainWindow):
         self.saveButton = SaveButton("Zapisz", self.cw);
         self.controlButLayout.addWidget(self.saveButton);
         self.controlButFrame.setLayout(self.controlButLayout);
-        self.rLayout.addWidget(self.controlButFrame);
+        self.cLayout.addWidget(self.controlButFrame);
         #Margins in toolbar
+        self.cLayout.setContentsMargins(20,50,50,40);
+
+
+        #right colum - algorithm parameters
+        self.rLayout = QtGui.QVBoxLayout(self.cw);
+
+        self.paramLayout = QtGui.QVBoxLayout(self.cw);
+        self.paramFrame = QtGui.QGroupBox(self.cw)    
+
+        self.lPlatfromParam = ParamEdit("Liczba platform",self.cw);
+        self.paramLayout.addWidget(self.lPlatfromParam);
+        self.czasTrParam = ParamEdit("Czas trwania cyklu",self.cw);
+        self.paramLayout.addWidget(self.czasTrParam);
+        self.rozPopParam = ParamEdit("Rozmiar populacji",self.cw);
+        self.paramLayout.addWidget(self.rozPopParam);
+        self.lItParam = ParamEdit("Liczba iteracji",self.cw);
+        self.paramLayout.addWidget(self.lItParam);
+        self.lRParam = ParamEdit("Liczba r",self.cw);
+        self.paramLayout.addWidget(self.lRParam);
+        self.rozPopPoSelParam = ParamEdit("Rozmiar populacji po selekcji",self.cw);
+        self.paramLayout.addWidget(self.rozPopPoSelParam);
+        self.lOsElitParam = ParamEdit("Liczba osobników elitarnych",self.cw);
+        self.paramLayout.addWidget(self.lOsElitParam);
+        self.rTurnParam = ParamEdit("Rozmiar turnieju",self.cw);
+        self.paramLayout.addWidget(self.rTurnParam);
+        self.lOsZMut = ParamEdit("Liczba osobników z mutacji",self.cw);
+        self.paramLayout.addWidget(self.lOsZMut);
+        self.lOsZKrzyz = ParamEdit("Liczba osobników z krzyżowania",self.cw);
+        self.paramLayout.addWidget(self.lOsZKrzyz);
+        self.paramFrame.setLayout(self.paramLayout);
+        self.paramFrame.setTitle("Parametry Algorytmu Genetycznego");
+        self.rLayout.addWidget(self.paramFrame);
+
+        self.startAlgorithmButton = StartAlgorithmButton("Start", self.cw);
+        self.rLayout.addWidget(self.startAlgorithmButton);
+
+
         self.rLayout.setContentsMargins(20,50,50,40);
 
 
-        self.layout.addLayout(self.rLayout, 0,1);
 
-    
-        #Size of window is determined by number of cells
-        #self.setGeometry(50, 50, m*(sq+2*th)+200, n*(sq+2*th));
+        #Sublayouts added to main layout
+
+        self.layout.addLayout(self.cLayout, 0,1);
+        self.layout.addLayout(self.rLayout, 0,2);
+
         self.show()
         
     def makeGrid(self, _m, _n, initSourceCells, initDestCells, initObstacleCells, initBoard):
@@ -575,8 +678,4 @@ class Window(QtGui.QMainWindow):
 ##########################################################################################################
 app = QtGui.QApplication(sys.argv)
 mainWindow = Window(30,20,30,2) #liczba komórek na wysokość, na szerokość, wielkość kwadratu, grubosć linii (musi byc wielkorotnością 2)
-#mainWindow.grid.createPath([[0,0],[1,1],[2,1], [2,2]], 'red'); # lista punktów (x,y) a potem kolor
-#mainWindow.grid.createPath([[5,5],[5,4],[5,3], [5,2]], 'blue');
-#mainWindow.grid.createPath([[6,3],[6,4],[6,5], [6,6]], 'pink');
-#mainWindow.grid.gridArray[][]; - przechowuje plansze 0 oznaczają puste pola, -1 przeszkody, dwie kolejene liczby dodatnie kolejno punkt odbioru i dostawy (1 2) (3 4) itd 
 
