@@ -19,6 +19,12 @@ collectpts = [];
 providepts = [];
 T = 0;
 
+#najlepszy chromosom w przedostatniej populacji
+best_chrom = [];
+#jego wartosc przystosowania
+best_chrom_addapt = 0;
+
+ts = [];
 
 #pops - rozmiar populacji
 #num_it - liczba iteracji
@@ -39,22 +45,21 @@ def run_gen_algorithm(pl, kl, boardl, collectptsl, provideptsl, Tl, pops,
 	
 	p = pl;
 	k = kl;
-	board = [];
-	collectpts = [];
-	providepts = [];
-	T = 0;
-	board = [];
+	board = boardl;
+	collectpts = collectptsl;
+	providepts = provideptsl;
+	T = Tl;
 
-	#run_gen_algorithm(4, 5, [], [], [], 20, 10,
-	#10, 4, 5, 0, 3, 2, 2)
 	
 	pop_size = pops;
 	random.seed(time.time());
 	rand_population();
 	for i in range(num_it):
 		addapt_scaling(r);
+		#print(ts in chroms);
 		selection(sel_size, elit, tourn_size);
 		new_population(x, mut);
+		print(best_chrom_addapt);
 	
 
 #Losuje populacje 
@@ -77,20 +82,30 @@ def rand_population():
 
 def addapt_scaling(r):
 	global addaptation;
+	global best_chrom;
+	global best_chrom_addapt;
 	#policz nieprzeskalowane przystosowanie kazdego z osobnikow (najmniejsze
 	#bedzie najlepsze)
 	addaptation = [];
-	for chr in chroms:
-		addaptation.append(random.randrange(10, 40));
-		#addaptation.append(find_paths(p, k, board, collectpts, providepts, chr, T));
+	for i in range(len(chroms)):
+		addaptation.append(findways.find_paths(p, k, board, collectpts, providepts, chroms[i], T));
 	#Srednia przystosowania
 	av = float(sum(addaptation)) / float(len(addaptation));
 	#najlepsze przystosowanie
-	best = float(min(addaptation));
-	a = (r - 1)/(best - av);
-	b = (best - (r*av))/(best - av);
+	best = min(addaptation);
+	
+	best_chrom_addapt =  float(best);
+	best_chrom = chroms[addaptation.index(best)];
+	best = float(best);
+	if(best != av):
+		a = (r - 1)/(best - av);
+		b = (best - (r*av))/(best - av);
+	else:
+		a = 1/av;
+		b = 0;
 	#dokonaj przeskalowania dla kazdego elementu addaptation
-	addaptation[:] = [(a*x + b) for x in addaptation]; 
+	addaptation = [(a*x + b) for x in addaptation]; 
+	
 	
 #selekcja osobnikow - chroms - populacja zapisana za pomoca chromosomow
 #(wybrane osobniki zostana wykorzystane do krzyzowania i mutacji)
@@ -105,12 +120,14 @@ def selection(sel_size, elit, tourn_size):
 	global chroms;
 	global selected;
 	global addaptation;
+	global ts;
 	selected = [];
 	
 	#Wyszukaj elit najlepszych osobnikow
 	for i in range(elit):
 		ind = addaptation.index(max(addaptation));
 		selected.append(chroms[ind]);
+		ts = chroms[ind];
 		del chroms[ind];
 		del addaptation[ind];
 		#addaptation[ind] = -addaptation[ind]; - przy zastosowaniu ruletki mogloby 
@@ -165,11 +182,28 @@ def new_population(x, mut):
 	#mutuj i dodawaj osobniki do listy chroms
 	for chr in mutchr:
 		chroms.append(chromosome.mutate(chr, p, k));
+	
 	#dobieramy pary do krzyzowania - zakladamy, ze populacja nie jest
 	#monogamiczna - i dodajemy potomka otrzymanego w wyniku krzyzowania
 	#do populacji
 	for i in range(x):
 		parents = random.sample(selected, 2);
 		chroms.append(chromosome.crossV2(parents[0], parents[1], p, k));
-
 	
+
+#wylicza jaki chromosom ma najlepsza wartosc funkcji celu w danej populacji
+#i ja zwraca
+def get_best_chrom(r):
+	global addaptation;
+	global best_chrom;
+	global best_chrom_addapt;
+	#policz nieprzeskalowane przystosowanie kazdego z osobnikow (najmniejsze
+	#bedzie najlepsze)
+	addaptation = [];
+	for chr in chroms:
+		addaptation.append(findways.find_paths(p, k, board, collectpts, providepts, chr, T));
+
+	#najlepsze przystosowanie
+	best = min(addaptation);
+	best_chrom_addapt = best;
+	best_chrom = chroms[addaptation.index(best)];

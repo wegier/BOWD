@@ -189,9 +189,7 @@ def find_way(board, begpt, endpt, Gg, T):
 	
 	cur = begpt;
 	curf = -1;
-	
 	while len(OL) > 0 and G < T:
-	
 		#indeks elementu OL o najmniejszej wartosci F 
 		m_index = OL_Fs.index(min(OL_Fs));
 		#indeks elementu OL o najmniejszej wartosci G
@@ -225,29 +223,33 @@ def find_way(board, begpt, endpt, Gg, T):
 		neighs = getNeighbours(cur, G);
 		#Dla kazdego dostepnego sasiada:
 		for nei in neighs:
-			#jesli dany sasiad znajduje sie na OL i do tego jego 
-			#odleglosc od poczatku zapisana jest na liscie OL - nie
+			#jesli dany sasiad znajduje sie juz na OL (lub CL) i do tego jego 
+			#odleglosc od poczatku zapisana jest na liscie OL (lub CL)- nie
 			#dodawaj go jeszcze raz do listy
-			if(nei in OL):
-				indices = [i for i, p in enumerate(OL) if p == nei];
-				no_add = 0;
-				for i in indices:
+			no_add = 0;
+			if((nei in OL) or (nei in CL)):
+				indicesol = [i for i, p in enumerate(OL) if p == nei];
+				indicescl = [i for i, p in enumerate(CL) if p == nei];
+				#print("indicesol");
+				#print(indicesol);
+				#print("indicescl");
+				#print(indicescl);
+				for i in indicesol:
+					#print("indicesol - G");
+					#print(OL_Gs[i]);
 					if(OL_Gs[i] == G):
-						no_add == 1;
+						no_add = 1;
 						break;
-				if(no_add == 1):
-					continue;
-			#to samo z lista wezlow zamknietych
-			if(nei in CL):
-				indices = [i for i, p in enumerate(CL) if p == nei];
-				no_add = 0;
-				for i in indices:
+				for i in indicescl:
+					#print("indicescl - G");
+					#print(CL_Gs[i]);
 					if(CL_Gs[i] == G):
-						no_add == 1;
+						no_add = 1;
 						break;
-				if(no_add == 1):
-					continue;
-					
+				#print(no_add);
+				
+			if(no_add == 1):
+				continue;		
 			#W przeciwnym wypadku dodaj ten punkt z nowa wartoscia
 			#G do tablicy OL
 			
@@ -316,7 +318,8 @@ def getNeighbours(point, G):
 			if(point == paths[i][G]):
 				occupied.append(paths[i][G-1]);
 		else:
-			occupied.append(paths[i][len(paths[i]) - 1])
+			if(len(paths[i]) > 0):
+				occupied.append(paths[i][len(paths[i]) - 1])
 		
 	#Sprawdz, czy sasiednie pole nie wychodzi poza granice planszy
 	#jak rowniez czy nie jest zabronione przez to jak wyglada plansza lub

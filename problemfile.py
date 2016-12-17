@@ -70,7 +70,7 @@ def read_problem_file(filename):
 	#i w odpowiednich miejscach wpisz jedynki
 	board = [[0 for x in range(m)] for y in range(n)];
 	for point in forbidden:
-		board[point[0]][point[1]] = 1;
+		board[point[0]][point[1]] = -1;
 	f.close
 		
 #zapis ustawienia do pliku

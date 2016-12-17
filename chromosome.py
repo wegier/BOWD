@@ -1,11 +1,12 @@
 import random;
 import time;
-
+import copy;
 #wazne, aby nieuzywane pola w macierzy byly wypelnione zerami!
 #p - liczba platform
 #k - liczba surowcow
 #Mutuj chromosom
 def mutate(chrom, p, k):
+	chrom = copy.deepcopy(chrom);
 	#ponizsze niedopuszczalne
 	if(p == 0 or k == 0):
 		return;
