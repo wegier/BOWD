@@ -548,8 +548,13 @@ class StartAlgorithmButton(QtGui.QPushButton):
         tourn_size = ParamEdit.parameters[7];
         mut = ParamEdit.parameters[8];
         x = ParamEdit.parameters[9];
+        mut_size = ParamEdit.parameters[10];
         genetic.run_gen_algorithm(p, k, board, collectpts, providepts, T, pops,
+<<<<<<< HEAD
          num_it, r, sel_size, elit, x, mut, tourn_size, window.nameEdit.text());
+=======
+         num_it, r, sel_size, elit, x, mut, tourn_size, mut_size, 'results');
+>>>>>>> 00d9feea1236848cbf8fd8f6b0b8a3ca63fd11b7
 		
         print("KONIEC");
 		

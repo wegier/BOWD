@@ -5,7 +5,7 @@ import copy;
 #p - liczba platform
 #k - liczba surowcow
 #Mutuj chromosom
-def mutate(chrom, p, k):
+def mutate(chrom, p, k, mut_size):
 	chrom = copy.deepcopy(chrom);
 	#ponizsze niedopuszczalne
 	if(p == 0 or k == 0):
@@ -16,10 +16,12 @@ def mutate(chrom, p, k):
 	#wybierz liczbe surowcow, dla ktorej zastapi zmiana platform
 	#maks. k/2, czyli polowa liczby wszystkich surowcow, chyba ze
 	#liczba surowcow to 1
-	num_changes = 1;
-	if(k > 1):
-		num_changes = random.randrange(1, int(k/2)+1);
-	
+	num_changes = mut_size;
+	if(mut_size < 0):
+		if(k > 1):
+			num_changes = random.randrange(1, int(k/2)+1);
+		else:
+			k = 1;
 	
 	#wybierz losowo surowce do zmiany platform
 	to_change = random.sample(range(k), num_changes);
