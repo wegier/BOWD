@@ -37,6 +37,8 @@ def read_problem_file(filename):
 	forbidden = [];
 	for point in forb:
 		h = point.split("-");
+		if(h[0] == ''):
+			continue;
 		forbidden.append([int(h[0]), int(h[1])]);
 	
 	del forb;
@@ -46,6 +48,8 @@ def read_problem_file(filename):
 	collectpts = [];
 	for point in coll:
 		h = point.split("-");
+		if(h[0] == ''):
+			continue;
 		collectpts.append([int(h[0]), int(h[1])]);
 	
 	del coll;
@@ -56,6 +60,8 @@ def read_problem_file(filename):
 	providepts = [];
 	for point in prov:
 		h = point.split("-");
+		if(h[0] == ''):
+			continue;
 		providepts.append([int(h[0]), int(h[1])]);
 	
 	del prov;
