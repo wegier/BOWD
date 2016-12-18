@@ -38,7 +38,7 @@ known_addapt = [];
 #pozostale zmienne - oznaczenia takie same jak stosowane w innych miejscach
 #z dodana litera l
 def run_gen_algorithm(pl, kl, boardl, collectptsl, provideptsl, Tl, pops,
-	num_it, r, sel_size, elit, x, mut, tourn_size, filename):
+	num_it, r, sel_size, elit, x, mut, tourn_size, mut_size, filename):
 	global p;
 	global k;
 	global pop_size;
@@ -67,7 +67,7 @@ def run_gen_algorithm(pl, kl, boardl, collectptsl, provideptsl, Tl, pops,
 	for i in range(num_it):
 		addapt_scaling(r);
 		selection(sel_size, elit, tourn_size);
-		new_population(x, mut);
+		new_population(x, mut, mut_size);
 		print(best_chrom_addapt);
 		f.write(str(i+1) + ";" + str(best_chrom_addapt) + "\n");
 	f.close();
@@ -189,7 +189,7 @@ def selection(sel_size, elit, tourn_size):
 #w wyniku mutacji
 #x - liczba osobnikow powstalych z krzyzowania
 #mut - liczba osobnikow powstalych w wyniku mutacji
-def new_population(x, mut):
+def new_population(x, mut, mut_size):
 	global chroms;
 	global selected;
 	#osobniki z selekcji 
@@ -197,7 +197,7 @@ def new_population(x, mut):
 	mutchr = random.sample(selected, mut);
 	#mutuj i dodawaj osobniki do listy chroms
 	for chr in mutchr:
-		chroms.append(chromosome.mutate(chr, p, k));
+		chroms.append(chromosome.mutate(chr, p, k, mut_size));
 	
 	#dobieramy pary do krzyzowania - zakladamy, ze populacja nie jest
 	#monogamiczna - i dodajemy potomka otrzymanego w wyniku krzyzowania
