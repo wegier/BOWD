@@ -465,8 +465,9 @@ class StartAlgorithmButton(QtGui.QPushButton):
         super(StartAlgorithmButton, self).__init__(text, parent);
         self.clicked.connect(self.handleClicked);
     def handleClicked(self):
+        window = self.parentWidget().parentWidget();
         print("START");
-
+      
         p = ParamEdit.parameters[0];
         k = problemfile.k;
         board = problemfile.board;
@@ -482,7 +483,7 @@ class StartAlgorithmButton(QtGui.QPushButton):
         mut = ParamEdit.parameters[8];
         x = ParamEdit.parameters[9];
         genetic.run_gen_algorithm(p, k, board, collectpts, providepts, T, pops,
-         num_it, r, sel_size, elit, x, mut, tourn_size, 'results');
+         num_it, r, sel_size, elit, x, mut, tourn_size, window.nameEdit.text());
 		
         print("KONIEC");
 		
@@ -588,6 +589,7 @@ class Window(QtGui.QMainWindow):
         #path List controll buttons
         self.showButton = ShowPathButton("Pokaz", self.cw);
         self.hideButton = HidePathButton("Ukryj", self.cw);
+
         self.cLayout.addWidget(self.showButton);
         self.cLayout.addWidget(self.hideButton);
 
@@ -607,6 +609,13 @@ class Window(QtGui.QMainWindow):
         self.controlButLayout.addWidget(self.saveButton);
         self.controlButFrame.setLayout(self.controlButLayout);
         self.cLayout.addWidget(self.controlButFrame);
+        #Result name
+        self.nameLabel = QtGui.QLabel("Nazwa Pliku Wynikowego");
+        self.nameEdit = QtGui.QLineEdit("wyniki",self.cw);        
+        self.cLayout.addWidget(self.nameLabel);
+        self.cLayout.addWidget(self.nameEdit);
+
+
         #Margins in toolbar
         self.cLayout.setContentsMargins(20,50,50,40);
 
