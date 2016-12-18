@@ -24,7 +24,11 @@ best_chrom = [];
 #jego wartosc przystosowania
 best_chrom_addapt = 0;
 
-ts = [];
+#Zapobiega kilkukrotnemu liczeniu drogi dla znanego juz chromosomu
+#Lista juz znanych chromosomow
+known_chroms = [];
+#lista ich przystosowan
+known_addapt = [];
 
 #pops - rozmiar populacji
 #num_it - liczba iteracji
@@ -34,7 +38,7 @@ ts = [];
 #pozostale zmienne - oznaczenia takie same jak stosowane w innych miejscach
 #z dodana litera l
 def run_gen_algorithm(pl, kl, boardl, collectptsl, provideptsl, Tl, pops,
-	num_it, r, sel_size, elit, x, mut, tourn_size):
+	num_it, r, sel_size, elit, x, mut, tourn_size, filename):
 	global p;
 	global k;
 	global pop_size;
@@ -42,6 +46,9 @@ def run_gen_algorithm(pl, kl, boardl, collectptsl, provideptsl, Tl, pops,
 	global collectpts;
 	global providepts;
 	global T;
+	global known_chroms;
+	global known_addapt;
+	
 	
 	p = pl;
 	k = kl;
@@ -50,17 +57,20 @@ def run_gen_algorithm(pl, kl, boardl, collectptsl, provideptsl, Tl, pops,
 	providepts = provideptsl;
 	T = Tl;
 
+	known_chroms = [];
+	known_addapt = [];
 	
+	f = open(filename, 'w');
 	pop_size = pops;
 	random.seed(time.time());
 	rand_population();
 	for i in range(num_it):
 		addapt_scaling(r);
-		#print(ts in chroms);
 		selection(sel_size, elit, tourn_size);
 		new_population(x, mut);
 		print(best_chrom_addapt);
-	
+		f.write(str(i+1) + ";" + str(best_chrom_addapt) + "\n");
+	f.close();
 
 #Losuje populacje 
 def rand_population():
@@ -84,11 +94,19 @@ def addapt_scaling(r):
 	global addaptation;
 	global best_chrom;
 	global best_chrom_addapt;
+	global known_chroms;
+	global known_addapt;
 	#policz nieprzeskalowane przystosowanie kazdego z osobnikow (najmniejsze
 	#bedzie najlepsze)
 	addaptation = [];
 	for i in range(len(chroms)):
-		addaptation.append(findways.find_paths(p, k, board, collectpts, providepts, chroms[i], T));
+		if(chroms[i] in known_chroms):
+			addaptation.append(known_addapt[known_chroms.index(chroms[i])]);
+		else:
+			ad = findways.find_paths(p, k, board, collectpts, providepts, chroms[i], T);
+			known_chroms.append(chroms[i]);
+			known_addapt.append(ad);
+			addaptation.append(ad);
 	#Srednia przystosowania
 	av = float(sum(addaptation)) / float(len(addaptation));
 	#najlepsze przystosowanie
@@ -120,14 +138,12 @@ def selection(sel_size, elit, tourn_size):
 	global chroms;
 	global selected;
 	global addaptation;
-	global ts;
 	selected = [];
 	
 	#Wyszukaj elit najlepszych osobnikow
 	for i in range(elit):
 		ind = addaptation.index(max(addaptation));
 		selected.append(chroms[ind]);
-		ts = chroms[ind];
 		del chroms[ind];
 		del addaptation[ind];
 		#addaptation[ind] = -addaptation[ind]; - przy zastosowaniu ruletki mogloby 
