@@ -20,7 +20,8 @@ def mutate(chrom, p, k, mut_size):
 	if(mut_size < 0):
 		if(k > 1):
 			num_changes = random.randrange(1, int(k/2)+1);
-	
+		else:
+			k = 1;
 	
 	#wybierz losowo surowce do zmiany platform
 	to_change = random.sample(range(k), num_changes);
