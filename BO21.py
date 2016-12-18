@@ -637,6 +637,9 @@ class Window(QtGui.QMainWindow):
         self.paramLayout.addWidget(self.lOsZMut);
         self.lOsZKrzyz = ParamEdit("Liczba osobników z krzyżowania",self.cw);
         self.paramLayout.addWidget(self.lOsZKrzyz);
+        self.lGenDoMut = ParamEdit("Liczba genów do mutacji",self.cw);
+        self.paramLayout.addWidget(self.lGenDoMut);
+        
         self.paramFrame.setLayout(self.paramLayout);
         self.paramFrame.setTitle("Parametry Algorytmu Genetycznego");
         self.rLayout.addWidget(self.paramFrame);
