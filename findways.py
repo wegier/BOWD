@@ -129,11 +129,95 @@ def find_paths(p, k, board, collectpts, providepts, chrom, T):
 		if(len(paths[i]) - 1 > time):
 			time = len(paths[i]) - 1;
 		numpl = numpl + 1;
-		#korzystajac z faktu, ze platformy przed dotarciem do punktu koncowego
-		#nie moga sie zatrzymywac, wartosc funkcji celu: 
-		res += len(paths[i]);
-	#Dlugosc poszczegolnych sciezek
+		
+	numpl = p;
+	#moze sie zdazyc, ze platforma, dla ktorej droge obliczono wczesniej przejezdza
+	#przez koncowy punkt postoju jednej z pozniejszych platform. W takim przypadku ponownie
+	#oblicz droge dla wczesniejszej platformy.
+	for u in reversed(range(len(paths))):
+		if(len(paths[u]) == 0):
+			continue;
+		fin_field = paths[u][len(paths[u]) - 1];
+		for i in range(u):
+			if(fin_field in paths[i]):
+				if(paths[i].index(fin_field) >= len(paths[u])):
+					#Dlugosc przebytej drogi - 0
+					G = 0;
+					#pierwszy z kolei surowiec dla danej platformy
+					l = 1;
+					paths[i] = [];
+					#poczatkowe polozenie 
+					j = chrom[i].index(l);
+					curpos = collectpts[j];
+					begpos = curpos;
+					#dolacz punkt poczatkowy do trasy.
+					paths[i].append(begpos);
+					while l in chrom[i]:
+						#aktualnie obslugiwany surowiec
+						j = chrom[i].index(l);
+						#Przejdz do punktu odbioru surowca
+						smallpth = find_way(board, curpos, collectpts[j], G, T);
+						#jesli nie znaleziono drogi
+						if(smallpth == [[-1, -1]]):
+							time = -1;
+							return p*(T+1);
+						#dolacz te trase do calosci trasy platformy
+						paths[i] += smallpth;
+						if(len(paths[i]) > 0):
+							G = len(paths[i]) -1;
+						curpos = collectpts[j];
+			
+						#jesli dlugosc trasy przekracza maksymalna dopuszczalna dlugosc
+						#zakoncz wykonywanie funkcji
+						if len(paths[i]) > T:
+							time = -1;
+							return p*(T+1);
+			
+						#Przejdz do punktu docelowego dla surowca
+			
+						smallpth = find_way(board, curpos, providepts[j], G, T);
+						if(smallpth == [[-1, -1]]):
+							time = -1;
+							return p*(T+1);
+						#dolacz te trase do calosci trasy platformy
+						paths[i] += smallpth;
+			
+						if(len(paths[i]) > 0):
+							G = len(paths[i]) -1;
+			
+						curpos = providepts[j];
+			
+						#jesli dlugosc trasy przekracza maksymalna dopuszczalna dlugosc
+						#zakoncz wykonywanie funkcji
+						if len(paths[i]) > T:
+							time = -1;
+							return p*(T+1);			
+			
+						#kolejny surowiec do obsluzenia
+						l += 1;
+					#Wroc do pola poczatkowego
+		
+					smallpth = find_way(board, curpos, begpos, G, T);
+					if(smallpth == [[-1, -1]]):
+						time = -1;
+						return p*(T+1);
+					if len(paths[i]) > T:
+						time = -1;
+						return p*(T+1);
+					#dolacz te trase do calosci trasy platformy
+					paths[i] += smallpth;
+		
+					if(len(paths[i]) > 0):
+						G = len(paths[i]) -1;	
+			
+					if(len(paths[i]) - 1 > time):
+						time = len(paths[i]) - 1;
 	
+	
+	#korzystajac z faktu, ze platformy przed dotarciem do punktu koncowego
+	#nie moga sie zatrzymywac, wartosc funkcji celu: 
+	for i in range(p):
+		res += len(paths[i]);
 	#Do zakonczenia cyklu (czas T) platformy maja czekac w miejscu
 	#O ile sciezka dla danej platformy nie jest pusta - wtedy rowniez lista
 	#jest pusta
@@ -312,6 +396,8 @@ def getNeighbours(point, G):
 	#(gdy platformy sie zamieniaja miejscami)
 	occupied = [];
 	for i in range(numpl):
+		if(len(paths[i]) == 0):
+			continue;
 		if(G < len(paths[i])):
 			occupied.append(paths[i][G]);
 			# zamiana miejscami niedopuszczalna.
