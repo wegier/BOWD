@@ -1,0 +1,12 @@
+Przyk³adowe parametry do planszy testowa_plansza:
+Liczba platform: 10
+Czas trwania cyklu: 1000
+Rozmiar populacji: 20
+Liczba iteracji: 10 (ma³a, ¿ebyœ szybciej zobaczy³ efekty, bo trzeba poczekaæ do koñca a wykonanie ka¿dej iteracji trochê trwa)
+r: 4
+Rozmiar populacji po selekcji: 10
+Liczba osobników elitarnych: 2
+Rozmiar turnieju: 2
+Liczba osobników z mutacji: 3
+Liczba osobników z krzy¿owania: 7
+Liczba genów do mutacji: 1
