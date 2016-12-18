@@ -1,9 +1,11 @@
 import sys
 from PyQt4 import QtGui, QtCore;
+from PyQt4.QtCore import QTimer;
 from enum import Enum;
 import problemfile;
 import genetic;
-
+import findways;
+from time import sleep;
 
 
 
@@ -548,7 +550,8 @@ class StartAlgorithmButton(QtGui.QPushButton):
         tourn_size = ParamEdit.parameters[7];
         mut = ParamEdit.parameters[8];
         x = ParamEdit.parameters[9];
-        genetic.run_gen_algorithm(p, k, board, collectpts, providepts, T, pops, num_it, r, sel_size, elit, x, mut, tourn_size, window.nameEdit.text());
+        mut_size = ParamEdit.parameters[10];
+        genetic.run_gen_algorithm(p, k, board, collectpts, providepts, T, pops, num_it, r, sel_size, elit, x, mut, tourn_size, mut_size, window.nameEdit.text());
         print("KONIEC");
 		
 
@@ -585,15 +588,38 @@ class ParamEdit(QtGui.QWidget):
 
 #==================================================    
 #==================================================
-        
+
+		
 class AnimateButton(QtGui.QPushButton):
     def __init__(self, text, parent):
         super(AnimateButton, self).__init__(text, parent);
         self.clicked.connect(self.handleClicked);
     def handleClicked(self):
         window = self.parentWidget().parentWidget();
-        print("animuj");
+        #czas czekania na ruch w milisekundach
+        self.sleep_time = 250; 
+        
+		
+        genetic.get_best_chrom();
+        if findways.time < 0:
+            return;            	
+        self.paths = genetic.best_paths;
+        self.j = 0;
+		
+        QTimer.singleShot(self.sleep_time, self.move);
 
+    def move(self):
+        if self.j == findways.time + 1:
+            return;
+        j = self.j;	
+        mainWindow.grid.delCircles();		
+        for i in range(genetic.p):
+            if(len(self.paths[i]) > 0):		
+                mainWindow.grid.addCircle(self.paths[i][j][0], self.paths[i][j][1],str(i + 1),0,0);
+        self.j = self.j + 1;
+        QTimer.singleShot(self.sleep_time, self.move);
+			
+    
         
 #==================================================
                 

@@ -23,7 +23,8 @@ T = 0;
 best_chrom = [];
 #jego wartosc przystosowania
 best_chrom_addapt = 0;
-
+#Sciezki platform dla tego (najlepszego) chromosomu
+best_paths = [];
 #Zapobiega kilkukrotnemu liczeniu drogi dla znanego juz chromosomu
 #Lista juz znanych chromosomow
 known_chroms = [];
@@ -209,10 +210,11 @@ def new_population(x, mut, mut_size):
 
 #wylicza jaki chromosom ma najlepsza wartosc funkcji celu w danej populacji
 #i ja zwraca
-def get_best_chrom(r):
+def get_best_chrom():
 	global addaptation;
 	global best_chrom;
 	global best_chrom_addapt;
+	global best_paths;
 	#policz nieprzeskalowane przystosowanie kazdego z osobnikow (najmniejsze
 	#bedzie najlepsze)
 	addaptation = [];
@@ -223,3 +225,5 @@ def get_best_chrom(r):
 	best = min(addaptation);
 	best_chrom_addapt = best;
 	best_chrom = chroms[addaptation.index(best)];
+	findways.find_paths(p, k, board, collectpts, providepts, best_chrom, T)
+	best_paths = findways.paths;
