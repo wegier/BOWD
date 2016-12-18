@@ -548,14 +548,7 @@ class StartAlgorithmButton(QtGui.QPushButton):
         tourn_size = ParamEdit.parameters[7];
         mut = ParamEdit.parameters[8];
         x = ParamEdit.parameters[9];
-        mut_size = ParamEdit.parameters[10];
-        genetic.run_gen_algorithm(p, k, board, collectpts, providepts, T, pops,
-<<<<<<< HEAD
-         num_it, r, sel_size, elit, x, mut, tourn_size, window.nameEdit.text());
-=======
-         num_it, r, sel_size, elit, x, mut, tourn_size, mut_size, 'results');
->>>>>>> 00d9feea1236848cbf8fd8f6b0b8a3ca63fd11b7
-		
+        genetic.run_gen_algorithm(p, k, board, collectpts, providepts, T, pops, num_it, r, sel_size, elit, x, mut, tourn_size, window.nameEdit.text());
         print("KONIEC");
 		
 
@@ -786,5 +779,5 @@ class Window(QtGui.QMainWindow):
 ##########################################################################################################
 app = QtGui.QApplication(sys.argv)
 mainWindow = Window(30,20,30,2) #liczba komórek na wysokość, na szerokość, wielkość kwadratu, grubosć linii (musi byc wielkorotnością 2)
-#mainWindow.grid.addCircle(5,7,"1",5,5); - Dwa ostatnie argumenty - offset - opcjonalne
+#mainWindow.grid.addCircle(5,7,"1",5,5);# - Dwa ostatnie argumenty - offset - opcjonalne
 #mainWindow.grid.delCircles();
