@@ -98,7 +98,6 @@ class ClickableSquare(QtGui.QLabel):
 #==================================================    
 
         
-        
     def mousePressEvent(self, event):
         self.clicked.emit(self.x,self.y)
                 
@@ -183,6 +182,52 @@ class ClickableSquare(QtGui.QLabel):
         self.pixmap.fill(QtGui.QColor(self.colour))
         self.setPixmap(self.pixmap)
         self.repaint();
+#==================================================
+#==================================================       
+
+class Circle(QtGui.QLabel):
+        
+    def __init__(self, _x, _y, _radius, _text, _parent):
+         
+        super(Circle, self).__init__(_parent)
+        self.x = _x
+        self.y = _y
+        self.radius = _radius
+        self.size = 2*_radius
+        self.text = _text
+              
+        self.resize(self.size, self.size);
+        self.setMinimumHeight(self.size);
+        self.setMinimumWidth(self.size);
+    
+        
+        self.textbox = QtGui.QLabel(_text,self);
+        self.textbox.setFont(QtGui.QFont("Arial", int(self.radius/1.5)));
+        self.textbox.resize(self.size, self.size);
+        self.textbox.setMinimumHeight(self.size);
+        self.textbox.setMinimumWidth(self.size);
+        self.textbox.setAlignment(QtCore.Qt.AlignCenter)
+
+        self.layout = QtGui.QHBoxLayout();
+        self.layout.setMargin(0);
+        self.layout.addWidget(self.textbox);
+
+        self.setLayout(self.layout);
+        self.update();
+ 
+    def paintEvent(self, e):
+        
+        qp = QtGui.QPainter()
+        qp.begin(self);
+        qp.setBrush(QtCore.Qt.green)
+        pen = QtGui.QPen(QtCore.Qt.green,0, QtCore.Qt.SolidLine)
+        qp.setPen(pen)
+        qp.drawEllipse(0,0,self.size, self.size)
+        qp.end()
+
+        
+        
+        
 
 #=========================================================================================
 # CheckerBoard - contains CilckableSquares and lines, stores data about cells            #
@@ -218,6 +263,8 @@ class CheckerBoard(QtGui.QWidget):
         self.setMinimumWidth(self.width*(self.thickness+self.sqSize)+self.gridY);
         #List of drawed paths
         self.paths = [];
+        #List of drawed circles - for animation
+        self.circles = [];
         #Data array
         if initBoard == []:
             self.gridVal = [[0 for(x) in range(m)] for y in range(n)];
@@ -285,9 +332,28 @@ class CheckerBoard(QtGui.QWidget):
             x = initObstacleCells[i][0];
             y = initObstacleCells[i][1];
             self.squares[x][y].setAsObstacle();
-       
-          
         
+#==================================================
+            
+    def addCircle(self, i, j,_text, i_offset = 0, j_offset = 0):
+        originX = self.gridX + self.thickness/2;
+        originY = self.gridY + self.thickness/2;
+        border = self.sqSize - self.thickness;
+        circle = Circle(i ,j, self.sqSize/2-self.thickness/2, _text, self)
+        circle.move(originX + border*j +self.thickness*j + i_offset,  originY + border*i +self.thickness*i + j_offset)
+        self.circles.append(circle);
+        circle.show();
+
+#==================================================
+            
+    def delCircles(self):
+        while(len(self.circles)):
+            toDel = self.circles.pop();
+            toDel.hide();
+            toDel.textbox.deleteLater();
+            toDel.deleteLater();
+        self.show();
+            
 #==================================================    
        
     def createPath(self, pathPoints, colour):
@@ -518,8 +584,18 @@ class ParamEdit(QtGui.QWidget):
         else:
             ParamEdit.parameters[self.id] = 0;
         print(ParamEdit.parameters);
+
+#==================================================    
+#==================================================
         
-        
+class AnimateButton(QtGui.QPushButton):
+    def __init__(self, text, parent):
+        super(AnimateButton, self).__init__(text, parent);
+        self.clicked.connect(self.handleClicked);
+    def handleClicked(self):
+        window = self.parentWidget().parentWidget();
+        print("animuj");
+
         
 #==================================================
                 
@@ -535,7 +611,7 @@ class Window(QtGui.QMainWindow):
         super(Window, self).__init__()
 
         
-        self.grid = CheckerBoard(0,0,0,0); #tu musi coś być                
+        self.grid = CheckerBoard(10,10,20,2); #tu musi coś być                
         #main layout
         self.layout = QtGui.QGridLayout();
         self.layout.addWidget(self.grid, 0,0);
@@ -655,19 +731,18 @@ class Window(QtGui.QMainWindow):
 
         self.startAlgorithmButton = StartAlgorithmButton("Start", self.cw);
         self.rLayout.addWidget(self.startAlgorithmButton);
-
+        self.animateButton = AnimateButton("Animuj", self.cw);
+        self.rLayout.addWidget(self.animateButton);
 
         self.rLayout.setContentsMargins(20,50,50,40);
-
-
 
         #Sublayouts added to main layout
 
         self.layout.addLayout(self.cLayout, 0,1);
         self.layout.addLayout(self.rLayout, 0,2);
+         
+        self.show();
 
-        self.show()
-        
     def makeGrid(self, _m, _n, initSourceCells, initDestCells, initObstacleCells, initBoard):
 
         window = self;
@@ -706,4 +781,5 @@ class Window(QtGui.QMainWindow):
 ##########################################################################################################
 app = QtGui.QApplication(sys.argv)
 mainWindow = Window(30,20,30,2) #liczba komórek na wysokość, na szerokość, wielkość kwadratu, grubosć linii (musi byc wielkorotnością 2)
-
+#mainWindow.grid.addCircle(5,7,"1",5,5); - Dwa ostatnie argumenty - offset - opcjonalne
+#mainWindow.grid.delCircles();
