@@ -220,7 +220,7 @@ def find_paths(p, k, board, collectpts, providepts, chrom, T):
 	#dodatkowo odejmujemy pole poczatkowe od trasy (liczy sie dlugosc trasy, a nie liczba pol na ktorych
 	#znajdowala sie platforma)
 	for i in range(p):
-		if(len(paths[i] > 0):
+		if(len(paths[i]) > 0):
 			res += len(paths[i]) - 1;
 	#Do zakonczenia cyklu (czas T) platformy maja czekac w miejscu
 	#O ile sciezka dla danej platformy nie jest pusta - wtedy rowniez lista

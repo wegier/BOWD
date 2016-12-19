@@ -63,7 +63,9 @@ def run_gen_algorithm(pl, kl, boardl, collectptsl, provideptsl, Tl, pops,
 	
 	f = open(filename, 'w');
 	pop_size = pops;
-	random.seed(time.time());
+	#random.seed(time.time());
+	#Na potrzeby testow wartosc stala.
+	random.seed(7);
 	rand_population();
 	for i in range(num_it):
 		addapt_scaling(r);
