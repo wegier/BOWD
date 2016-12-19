@@ -61,6 +61,7 @@ def find_paths(p, k, board, collectpts, providepts, chrom, T):
 		paths.append([]);
 		if(not l in chrom[i]):
 			#brak surowcow dla danej platformy - pusta sciezka
+			numpl = numpl + 1;
 			continue;
 		#poczatkowe polozenie 
 		j = chrom[i].index(l);
@@ -118,8 +119,8 @@ def find_paths(p, k, board, collectpts, providepts, chrom, T):
 			time = -1;
 			return p*(T+1);
 		if len(paths[i]) > T:
-				time = -1;
-				return p*(T+1);
+			time = -1;
+			return p*(T+1);
 		#dolacz te trase do calosci trasy platformy
 		paths[i] += smallpth;
 		
@@ -216,8 +217,11 @@ def find_paths(p, k, board, collectpts, providepts, chrom, T):
 	
 	#korzystajac z faktu, ze platformy przed dotarciem do punktu koncowego
 	#nie moga sie zatrzymywac, wartosc funkcji celu: 
+	#dodatkowo odejmujemy pole poczatkowe od trasy (liczy sie dlugosc trasy, a nie liczba pol na ktorych
+	#znajdowala sie platforma)
 	for i in range(p):
-		res += len(paths[i]);
+		if(len(paths[i] > 0):
+			res += len(paths[i]) - 1;
 	#Do zakonczenia cyklu (czas T) platformy maja czekac w miejscu
 	#O ile sciezka dla danej platformy nie jest pusta - wtedy rowniez lista
 	#jest pusta
@@ -314,10 +318,6 @@ def find_way(board, begpt, endpt, Gg, T):
 			if((nei in OL) or (nei in CL)):
 				indicesol = [i for i, p in enumerate(OL) if p == nei];
 				indicescl = [i for i, p in enumerate(CL) if p == nei];
-				#print("indicesol");
-				#print(indicesol);
-				#print("indicescl");
-				#print(indicescl);
 				for i in indicesol:
 					#print("indicesol - G");
 					#print(OL_Gs[i]);
@@ -325,8 +325,6 @@ def find_way(board, begpt, endpt, Gg, T):
 						no_add = 1;
 						break;
 				for i in indicescl:
-					#print("indicescl - G");
-					#print(CL_Gs[i]);
 					if(CL_Gs[i] == G):
 						no_add = 1;
 						break;

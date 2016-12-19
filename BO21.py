@@ -554,6 +554,7 @@ class StartAlgorithmButton(QtGui.QPushButton):
         mut = ParamEdit.parameters[8];
         x = ParamEdit.parameters[9];
         mut_size = ParamEdit.parameters[10];
+
         genetic.run_gen_algorithm(p, k, board, collectpts, providepts, T, pops, num_it, r, sel_size, elit, x, mut, tourn_size, mut_size, window.nameEdit.text());
         print("KONIEC");
 		
@@ -602,7 +603,6 @@ class AnimateButton(QtGui.QPushButton):
         #czas czekania na ruch w milisekundach
         self.sleep_time = 250; 
         
-		
         genetic.get_best_chrom();
         if findways.time < 0:
             return;            	
