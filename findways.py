@@ -423,7 +423,7 @@ def getNeighbours(point, G):
 		if(not (board_internal[point[0]][point[1] - 1] == -1)):
 			if not ([point[0], point[1] - 1] in occupied):
 				neighs.append([point[0], point[1] - 1]);
-	if point[1] < n - 1:
+	if point[1] < m - 1:
 		if(not (board_internal[point[0]][point[1] + 1] == -1)):
 			if not ([point[0],point[1] + 1] in occupied):
 				neighs.append([point[0], point[1] + 1]);
