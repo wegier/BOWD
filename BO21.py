@@ -244,7 +244,7 @@ class Circle(QtGui.QLabel):
 class CheckerBoard(QtGui.QWidget):
 
         
-    def __init__(self,n,m, sq, th, initSourceCells = [], initDestCells = [], initObstacleCells = [], initBoard = []):
+    def __init__(self,n,m, sq, th, initSourceCells, initDestCells , initObstacleCells , initBoard ):
         super(CheckerBoard, self).__init__()
 
         #Bursh - connected with checkboxes, determines what should be done when cell is clicked
@@ -326,14 +326,17 @@ class CheckerBoard(QtGui.QWidget):
             x = initSourceCells[i][0];
             y = initSourceCells[i][1];
             self.squares[x][y].setAsMaterialSource(str(i+1));
+            self.sourceCells.append(self.squares[x][y]);
         for i in range(len(initDestCells)):
             x = initDestCells[i][0];
             y = initDestCells[i][1];
             self.squares[x][y].setAsMaterialDest(str(i+1));
+            self.destCells.append(self.squares[x][y]);
         for i in range(len(initObstacleCells)):
             x = initObstacleCells[i][0];
             y = initObstacleCells[i][1];
             self.squares[x][y].setAsObstacle();
+            self.obstacleCells.append(self.squares[x][y]);
         
 #==================================================
             
@@ -407,36 +410,36 @@ class CheckerBoard(QtGui.QWidget):
                 clicked.setAsNormal();
                 self.obstacleCells.remove(clicked);
                 self.gridVal[x][y] = FieldType.normal;
-                problemfile.board = self.gridVal[x][y]; ### NIEOPTYMALNIE
+                problemfile.board = self.gridVal; ### NIEOPTYMALNIE
                 problemfile.forbidden.remove(XY);
 
         elif self.brush == FieldType.obstacle  and  clicked.isNormal():
                 clicked.setAsObstacle();
                 self.obstacleCells.append(clicked);
                 self.gridVal[x][y] = FieldType.obstacle;
-                problemfile.board = self.gridVal[x][y]; ### NIEOPTYMALNIE
+                problemfile.board = self.gridVal; ### NIEOPTYMALNIE
                 problemfile.forbidden.append(XY);
 
         elif self.brush == FieldType.material and clicked.isNormal():
             if len(self.sourceCells) == len(self.destCells): #This means that last time we added dest (or started from 0), so source must be added
                 self.sourceCells.append(clicked);
-                problemfile.providepts.append(XY);
+                problemfile.collectpts.append(XY);
                 clicked.setAsMaterialSource(str(len(self.sourceCells)))
             elif len(self.sourceCells) > len(self.destCells):#This means that last time we added source, so dest must be added
                 self.destCells.append(clicked);
-                problemfile.collectpts.append(XY);
+                problemfile.providepts.append(XY);
                 clicked.setAsMaterialDest(str(len(self.destCells)))
            # self.gridVal[x][y] = len(self.sourceCells) + len(self.destCells) #Points associated with material are represended in gridArray by two succesive numbers - loading point is odd, unloading is eve
     
         elif self.brush == FieldType.normal and  clicked.isMaterial(): #Deleting existing materials is allowed only in the same order as elements were added 
             if len(self.sourceCells) == len(self.destCells) and clicked == self.destCells[len(self.destCells)-1]:#if last added was destination point 
                 self.destCells.pop();
-                problemfile.collectpts.pop();
+                problemfile.providepts.pop();
                 clicked.setAsNormal();
                 self.gridVal[x][y] = FieldType.normal;
             elif len(self.sourceCells) > len(self.destCells) and clicked == self.sourceCells[len(self.sourceCells)-1]:#if last added was source point :
                 self.sourceCells.pop();
-                problemfile.providepts.pop();
+                problemfile.collectpts.pop();
                 clicked.setAsNormal();
                 self.gridVal[x][y] = FieldType.normal;
                 
@@ -504,7 +507,7 @@ class LoadButton(QtGui.QPushButton):
         window = self.parentWidget().parentWidget().parentWidget();
         filePath = QtGui.QFileDialog.getOpenFileName(window, 'Otwórz Plik');
         problemfile.read_problem_file(filePath);
-        window.makeGrid(problemfile.n, problemfile.m, problemfile.providepts, problemfile.collectpts,problemfile.forbidden, problemfile.board);
+        window.makeGrid(problemfile.n, problemfile.m, problemfile.collectpts, problemfile.providepts,problemfile.forbidden, problemfile.board);
         #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         window.heightEdit.insert(str(problemfile.n));
         window.heightEdit.insert(str(problemfile.m));
@@ -537,8 +540,8 @@ class StartAlgorithmButton(QtGui.QPushButton):
         print("START");
       
         p = ParamEdit.parameters[0];
-        k = problemfile.k;
-        board = problemfile.board;
+        k = len(problemfile.collectpts); 
+        board = problemfile.board; 
         collectpts = problemfile.collectpts;
         providepts = problemfile.providepts;
         T = ParamEdit.parameters[1];
@@ -635,7 +638,7 @@ class Window(QtGui.QMainWindow):
         super(Window, self).__init__()
 
         
-        self.grid = CheckerBoard(10,10,20,2); #tu musi coś być                
+        self.grid = CheckerBoard(10,10,20,2,[],[],[],[]); #tu musi coś być                
         #main layout
         self.layout = QtGui.QGridLayout();
         self.layout.addWidget(self.grid, 0,0);
@@ -783,14 +786,16 @@ class Window(QtGui.QMainWindow):
 
         problemfile.m = _m;
         problemfile.n = _n;
+        print(problemfile.collectpts);
+
         problemfile.forbidden = initObstacleCells;
-        problemfile.providepts = initSourceCells;
-        problemfile.collectpts = initDestCells;
+        problemfile.providepts = initDestCells;
+        problemfile.collectpts = initSourceCells;
         problemfile.board = initBoard; 
 
         #Creating new grid and setting parameters
                 
-        window.grid = CheckerBoard(problemfile.m,problemfile.n,20,2,problemfile.providepts, problemfile.collectpts, problemfile.forbidden, problemfile.board);
+        window.grid = CheckerBoard(problemfile.m,problemfile.n,20,2, problemfile.collectpts, problemfile.providepts, problemfile.forbidden, problemfile.board);
         window.grid.setParent(window.cw)
         window.checkBoxGroup.buttonClicked.connect(window.grid.setBrush);
         window.checkBoxGroup.buttonClicked.emit(window.checkBoxGroup.checkedButton());
