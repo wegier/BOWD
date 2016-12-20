@@ -9,18 +9,6 @@ from time import sleep;
 
 
 
-
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-#PARAMETRY ALGORYTMU GENETYCZNEGO SĄ STATYCZNĄ LISTĄ - KOLEJNOŚĆ TAK JAK NA GUI -
-#KLASY ParamEdit
-# - ParamEdit.parameters[]
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-
-
-
-
-
 class FieldType:
     normal = 0;
     obstacle = -1;
@@ -42,6 +30,7 @@ class FieldType:
 # - loadingPoint - X, Y of material source in mainWindow.grid.gridArray[][]              #
 # - unloadingPoint - as above                                                            #
 #=========================================================================================
+
 class MaterialType:
     #static variable
     numberOfMaterials = 0;
@@ -410,14 +399,14 @@ class CheckerBoard(QtGui.QWidget):
                 clicked.setAsNormal();
                 self.obstacleCells.remove(clicked);
                 self.gridVal[x][y] = FieldType.normal;
-                problemfile.board = self.gridVal; ### NIEOPTYMALNIE
+                problemfile.board = self.gridVal; ### Could be done better...
                 problemfile.forbidden.remove(XY);
 
         elif self.brush == FieldType.obstacle  and  clicked.isNormal():
                 clicked.setAsObstacle();
                 self.obstacleCells.append(clicked);
                 self.gridVal[x][y] = FieldType.obstacle;
-                problemfile.board = self.gridVal; ### NIEOPTYMALNIE
+                problemfile.board = self.gridVal; 
                 problemfile.forbidden.append(XY);
 
         elif self.brush == FieldType.material and clicked.isNormal():
@@ -507,14 +496,15 @@ class LoadButton(QtGui.QPushButton):
         window = self.parentWidget().parentWidget().parentWidget();
         filePath = QtGui.QFileDialog.getOpenFileName(window, 'Otwórz Plik');
         problemfile.read_problem_file(filePath);
-        window.makeGrid(problemfile.n, problemfile.m, problemfile.collectpts, problemfile.providepts,problemfile.forbidden, problemfile.board);
-        #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        window.heightEdit.insert(str(problemfile.n));
-        window.heightEdit.insert(str(problemfile.m));
-        #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ NIE DZIAŁA - NAPRAWIĆ
+        window.widthEdit.backspace();
+        window.widthEdit.backspace();
+        window.widthEdit.insert(str(problemfile.m));
         
-
-
+        window.heightEdit.backspace();
+        window.heightEdit.backspace();
+        window.heightEdit.insert(str(problemfile.n));
+        
+        window.makeGrid(problemfile.n, problemfile.m, problemfile.collectpts, problemfile.providepts,problemfile.forbidden, problemfile.board);
 
         
 #==================================================    
@@ -653,10 +643,10 @@ class Window(QtGui.QMainWindow):
         self.cLayout.addWidget(self.makeButton);
         self.heightEdit = QtGui.QLineEdit(self.cw);
         self.heightEdit.setInputMask("D9");
-        self.heightEdit.insert("0");
+        self.heightEdit.insert("10");
         self.widthEdit = QtGui.QLineEdit(self.cw);
         self.widthEdit.setInputMask("D9");
-        self.widthEdit.insert("0");
+        self.widthEdit.insert("10");
         self.sizeLayout = QtGui.QHBoxLayout(self.cw);
         self.sizeLayout.addWidget(self.heightEdit);
         self.sizeLayout.addWidget(self.widthEdit);
@@ -776,7 +766,6 @@ class Window(QtGui.QMainWindow):
 
         window.checkBoxGroup.buttonClicked.disconnect(window.grid.setBrush);
         window.layout.removeWidget(window.grid);
-        #nie wiem, czy ten blok powyżej jest potrzebny, ale nie zaszkodzi
 
         #Deleting old grid
         
