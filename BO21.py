@@ -537,7 +537,8 @@ class StartAlgorithmButton(QtGui.QPushButton):
         T = ParamEdit.parameters[1];
         pops = ParamEdit.parameters[2];
         num_it = ParamEdit.parameters[3];
-        r = ParamEdit.parameters[4];
+        ##r = ParamEdit.parameters[4];
+        r =4;
         sel_size = ParamEdit.parameters[5];
         elit = ParamEdit.parameters[6];
         tourn_size = ParamEdit.parameters[7];
@@ -578,7 +579,6 @@ class ParamEdit(QtGui.QWidget):
             ParamEdit.parameters[self.id] = int(self.lineEdit.text());
         else:
             ParamEdit.parameters[self.id] = 0;
-        print(ParamEdit.parameters);
 
 #==================================================    
 #==================================================
@@ -729,6 +729,7 @@ class Window(QtGui.QMainWindow):
         self.paramLayout.addWidget(self.lItParam);
         self.lRParam = ParamEdit("Liczba r",self.cw);
         self.paramLayout.addWidget(self.lRParam);
+        self.lRParam.hide(); ##DISABLED
         self.rozPopPoSelParam = ParamEdit("Rozmiar populacji po selekcji",self.cw);
         self.paramLayout.addWidget(self.rozPopPoSelParam);
         self.lOsElitParam = ParamEdit("Liczba osobników elitarnych",self.cw);
@@ -775,7 +776,6 @@ class Window(QtGui.QMainWindow):
 
         problemfile.m = _m;
         problemfile.n = _n;
-        print(problemfile.collectpts);
 
         problemfile.forbidden = initObstacleCells;
         problemfile.providepts = initDestCells;
